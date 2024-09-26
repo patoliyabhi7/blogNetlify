@@ -166,7 +166,7 @@ const convertUTCToIST = (utcDate) => {
 
 (async () => {
     const imap = new Imap(imapConfig);
-
+    console.log("IMAP connection started");
     imap.once('ready', () => {
         imap.openBox('INBOX', false, (err, box) => {
             if (err) {
