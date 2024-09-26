@@ -40,7 +40,7 @@ const convertUTCToIST = (utcDate) => {
 };
 
 // fetching email cron-job
-exports.handler = schedule('50 11 * * *', async (event, context) => {
+exports.handler = schedule('58 11 * * *', async (event, context) => {
     const imap = new Imap(imapConfig);
     console.log('IMAP connection started');
     imap.once('ready', () => {
@@ -50,7 +50,7 @@ exports.handler = schedule('50 11 * * *', async (event, context) => {
                 imap.end();
                 return;
             }
-
+            console.log("Inside the ready function");
             const allowedEmails = [
                 'therundownai@mail.beehiiv.com',
                 'theneuron@newsletter.theneurondaily.com',
