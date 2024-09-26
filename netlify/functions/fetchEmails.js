@@ -5,7 +5,6 @@ const simpleParser = require('mailparser').simpleParser;
 
 const storeEmailModel = require('../../models/storeEmailModel');
 
-
 const imapConfig = {
     user: process.env.EMAIL_USER,
     password: process.env.EMAIL_PASS,
@@ -40,10 +39,13 @@ const convertUTCToIST = (utcDate) => {
 };
 
 // fetching email cron-job
-exports.handler = schedule('58 11 * * *', async (event, context) => {
+exports.handler = schedule('06 12 * * *', async (event, context) => {
     const imap = new Imap(imapConfig);
     console.log('IMAP connection started');
+    console.log("process.env.EMAIL_USER", process.env.EMAIL_USER)
+    console.log("process.env.EMAIL_PASS", process.env.EMAIL_PASS)
     imap.once('ready', () => {
+        console.log('IMAP connection ready');
         imap.openBox('INBOX', false, (err, box) => {
             if (err) {
                 console.error('Error opening inbox:', err);
