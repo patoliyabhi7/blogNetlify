@@ -85,7 +85,7 @@ const geminiAI = async (combinedContent) => {
 }
 
 // fetching email cron-job
-exports.handler = schedule('5 11 * * *', async (event, context) => {
+exports.handler = schedule('15 11 * * *', async (event, context) => {
     const imap = new Imap(imapConfig);
 
     imap.once('ready', () => {
@@ -211,7 +211,7 @@ exports.handler = schedule('5 11 * * *', async (event, context) => {
 
 
 // Generate blog content from fetched emails cron-job
-exports.handler = schedule('*/2 3-5 * * *', async (event, context) => {
+exports.handler = schedule('17 11 * * *', async (event, context) => {
     try {
         const emails = await fetchFromDB();
         if (emails.length === 0) {
