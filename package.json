@@ -1,0 +1,31 @@
+{
+  "name": "reademails",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon server.js",
+    "build": "echo 'This app does not need a build step'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@google/generative-ai": "^0.17.1",
+    "@netlify/functions": "^2.8.1",
+    "cloudinary": "^2.5.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "expres": "^0.0.5",
+    "express": "^4.19.2",
+    "imap": "^0.8.19",
+    "mailparser": "^3.7.1",
+    "mongoose": "^8.6.1",
+    "netlify-cli": "^17.36.2",
+    "netlify-lambda": "^2.0.16",
+    "node-fetch": "^3.3.2",
+    "nodemailer": "^6.9.15",
+    "nodemon": "^3.1.4",
+    "serverless-http": "^3.2.0"
+  }
+}
