@@ -5,8 +5,42 @@ const simpleParser = require('mailparser').simpleParser;
 
 const storeEmailModel = require('../../models/storeEmailModel');
 
+
+const imapConfig = {
+    user: process.env.EMAIL_USER,
+    password: process.env.EMAIL_PASS,
+    host: 'imap.gmail.com',
+    port: 993,
+    tls: true,
+    tlsOptions: { rejectUnauthorized: false },
+};
+
+const cleanText = (text) => {
+    let cleanedText = text.replace(/https?:\/\/[^\s]+/g, '');
+    cleanedText = cleanedText.replace(/[<>]/g, '');
+    cleanedText = cleanedText.replace(/\n{2,}/g, '\n\n').replace(/\s{2,}/g, ' ');
+    cleanedText = cleanedText.trim();
+    return cleanedText;
+};
+
+const convertUTCToIST = (utcDate) => {
+    const date = new Date(utcDate);
+    const utcTime = date.getTime();
+    const istOffset = 5.5 * 60 * 60 * 1000;
+    const istTime = new Date(utcTime + istOffset);
+
+    const year = istTime.getFullYear();
+    const month = String(istTime.getMonth() + 1).padStart(2, '0');
+    const day = String(istTime.getDate()).padStart(2, '0');
+    const hours = String(istTime.getHours()).padStart(2, '0');
+    const minutes = String(istTime.getMinutes()).padStart(2, '0');
+    const seconds = String(istTime.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
 // fetching email cron-job
-exports.handler = schedule('30 11 * * *', async (event, context) => {
+exports.handler = schedule('38 11 * * *', async (event, context) => {
     const imap = new Imap(imapConfig);
 
     imap.once('ready', () => {
