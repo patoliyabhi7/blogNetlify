@@ -38,6 +38,9 @@ const convertUTCToIST = (utcDate) => {
 };
 
 const fetchEmails = async () => {
+    const startTime = Date.now();
+    console.log('Fetch emails started at:', new Date(startTime).toLocaleTimeString());
+
     const imap = new Imap(imapConfig);
 
     imap.once('ready', () => {
@@ -87,8 +90,6 @@ const fetchEmails = async () => {
                                 const cleanedTextBody = cleanText(text);
                                 const istDate = convertUTCToIST(date);
 
-                                // Log the email date in both UTC and IST
-
                                 // Check if the email is from the allowed addresses
                                 if (!allowedEmails.includes(from.value[0].address)) {
                                     return;
@@ -102,15 +103,12 @@ const fetchEmails = async () => {
 
                                 const startTime = new Date(yesterday);
                                 startTime.setHours(19, 30, 0, 0); // 2 PM yesterday
-                                // console.log('Start Time:', startTime);
 
                                 const endTime = new Date(today);
                                 endTime.setHours(19, 0, 0, 0); // 1 PM today
-                                // console.log('End Time:', endTime);
 
                                 // Check if the email was received within the specified range
                                 const emailDate = new Date(istDate);
-                                // console.log('Email Date:', emailDate);
                                 if (emailDate < startTime || emailDate >= endTime) {
                                     return;
                                 }
@@ -118,7 +116,6 @@ const fetchEmails = async () => {
                                 // check if the email is already stored
                                 const emailExists = await storeEmailModel.findOne({ subject });
                                 if (emailExists) {
-                                    // console.log('Email already stored:', emailExists.subject);
                                     return;
                                 }
 
@@ -130,7 +127,6 @@ const fetchEmails = async () => {
                                     receivedDateTime: istDate,
                                     body: cleanedTextBody,
                                 });
-                                // console.log('Email stored:', email.subject);
                             } catch (err) {
                                 console.error('Error parsing or storing email:', err);
                             }
@@ -155,12 +151,13 @@ const fetchEmails = async () => {
     });
 
     imap.once('end', () => {
-        console.log('IMAP connection ended');
+        const endTime = Date.now();
+        console.log('IMAP connection ended at:', new Date(endTime).toLocaleTimeString());
+        console.log('Total execution time:', (endTime - startTime) / 1000, 'seconds');
     });
 
     imap.connect();
 }
-
 // fetch emails from database and store it in array
 const fetchFromDB = async () => {
     try {

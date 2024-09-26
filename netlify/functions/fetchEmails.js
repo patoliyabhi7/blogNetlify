@@ -40,128 +40,129 @@ const convertUTCToIST = (utcDate) => {
 
 // fetching email cron-job
 exports.handler = schedule('06 12 * * *', async (event, context) => {
-    const imap = new Imap(imapConfig);
-    console.log('IMAP connection started');
-    console.log("process.env.EMAIL_USER", process.env.EMAIL_USER)
-    console.log("process.env.EMAIL_PASS", process.env.EMAIL_PASS)
-    imap.once('ready', () => {
-        console.log('IMAP connection ready');
-        imap.openBox('INBOX', false, (err, box) => {
-            if (err) {
-                console.error('Error opening inbox:', err);
-                imap.end();
-                return;
-            }
-            console.log("Inside the ready function");
-            const allowedEmails = [
-                'therundownai@mail.beehiiv.com',
-                'theneuron@newsletter.theneurondaily.com',
-                'dan@tldrnewsletter.com',
-                'hello@faveeo.com',
-                'bensbites@mail.bensbites.co',
-                'hello@mindstream.news',
-                'importai@substack.com',
-                'aibreakfast@mail.beehiiv.com'
-            ];
-            console.log('Inbox opened & starting to fetch emails:', box.messages.total);
-            imap.search(['ALL'], (err, results) => {
-                if (err) {
-                    console.error('Error searching emails:', err);
-                    imap.end();
-                    return;
-                }
+    // const imap = new Imap(imapConfig);
+    // console.log('IMAP connection started');
+    // console.log("process.env.EMAIL_USER", process.env.EMAIL_USER)
+    // console.log("process.env.EMAIL_PASS", process.env.EMAIL_PASS)
+    // imap.once('ready', () => {
+    //     console.log('IMAP connection ready');
+    //     imap.openBox('INBOX', false, (err, box) => {
+    //         if (err) {
+    //             console.error('Error opening inbox:', err);
+    //             imap.end();
+    //             return;
+    //         }
+    //         console.log("Inside the ready function");
+    //         const allowedEmails = [
+    //             'therundownai@mail.beehiiv.com',
+    //             'theneuron@newsletter.theneurondaily.com',
+    //             'dan@tldrnewsletter.com',
+    //             'hello@faveeo.com',
+    //             'bensbites@mail.bensbites.co',
+    //             'hello@mindstream.news',
+    //             'importai@substack.com',
+    //             'aibreakfast@mail.beehiiv.com'
+    //         ];
+    //         console.log('Inbox opened & starting to fetch emails:', box.messages.total);
+    //         imap.search(['ALL'], (err, results) => {
+    //             if (err) {
+    //                 console.error('Error searching emails:', err);
+    //                 imap.end();
+    //                 return;
+    //             }
 
-                if (!results || !results.length) {
-                    console.log('No emails found.');
-                    imap.end();
-                    return;
-                }
+    //             if (!results || !results.length) {
+    //                 console.log('No emails found.');
+    //                 imap.end();
+    //                 return;
+    //             }
 
-                const f = imap.fetch(results, { bodies: [''], struct: true });
-                console.log('Fetching the last email');
-                f.on('message', (msg) => {
-                    msg.on('body', (stream, info) => {
-                        let buffer = '';
-                        stream.on('data', (chunk) => {
-                            buffer += chunk.toString('utf8');
-                        });
-                        stream.once('end', async () => {
-                            try {
-                                const parsed = await simpleParser(buffer);
-                                const { subject, date, from, text } = parsed;
-                                const cleanedTextBody = cleanText(text);
-                                const istDate = convertUTCToIST(date);
+    //             const f = imap.fetch(results, { bodies: [''], struct: true });
+    //             console.log('Fetching the last email');
+    //             f.on('message', (msg) => {
+    //                 msg.on('body', (stream, info) => {
+    //                     let buffer = '';
+    //                     stream.on('data', (chunk) => {
+    //                         buffer += chunk.toString('utf8');
+    //                     });
+    //                     stream.once('end', async () => {
+    //                         try {
+    //                             const parsed = await simpleParser(buffer);
+    //                             const { subject, date, from, text } = parsed;
+    //                             const cleanedTextBody = cleanText(text);
+    //                             const istDate = convertUTCToIST(date);
 
-                                // Log the email date in both UTC and IST
+    //                             // Log the email date in both UTC and IST
 
-                                // Check if the email is from the allowed addresses
-                                if (!allowedEmails.includes(from.value[0].address)) {
-                                    return;
-                                }
+    //                             // Check if the email is from the allowed addresses
+    //                             if (!allowedEmails.includes(from.value[0].address)) {
+    //                                 return;
+    //                             }
 
-                                // Calculate the date and time range
-                                const now = new Date();
-                                const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                                const yesterday = new Date(today);
-                                yesterday.setDate(today.getDate() - 1);
+    //                             // Calculate the date and time range
+    //                             const now = new Date();
+    //                             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    //                             const yesterday = new Date(today);
+    //                             yesterday.setDate(today.getDate() - 1);
 
-                                const startTime = new Date(yesterday);
-                                startTime.setHours(19, 30, 0, 0); // 2 PM yesterday
-                                console.log('Start Time:', startTime);
+    //                             const startTime = new Date(yesterday);
+    //                             startTime.setHours(19, 30, 0, 0); // 2 PM yesterday
+    //                             console.log('Start Time:', startTime);
 
-                                const endTime = new Date(today);
-                                endTime.setHours(19, 0, 0, 0); // 1 PM today
-                                // console.log('End Time:', endTime);
+    //                             const endTime = new Date(today);
+    //                             endTime.setHours(19, 0, 0, 0); // 1 PM today
+    //                             // console.log('End Time:', endTime);
 
-                                // Check if the email was received within the specified range
-                                const emailDate = new Date(istDate);
-                                // console.log('Email Date:', emailDate);
-                                if (emailDate < startTime || emailDate >= endTime) {
-                                    return;
-                                }
+    //                             // Check if the email was received within the specified range
+    //                             const emailDate = new Date(istDate);
+    //                             // console.log('Email Date:', emailDate);
+    //                             if (emailDate < startTime || emailDate >= endTime) {
+    //                                 return;
+    //                             }
 
-                                // check if the email is already stored
-                                const emailExists = await storeEmailModel.findOne({ subject });
-                                if (emailExists) {
-                                    // console.log('Email already stored:', emailExists.subject);
-                                    return;
-                                }
+    //                             // check if the email is already stored
+    //                             const emailExists = await storeEmailModel.findOne({ subject });
+    //                             if (emailExists) {
+    //                                 // console.log('Email already stored:', emailExists.subject);
+    //                                 return;
+    //                             }
 
-                                // Store the email in the database
-                                const email = await storeEmailModel.create({
-                                    subject,
-                                    from: from.text,
-                                    currentDate: new Date().toJSON().slice(0, 10),
-                                    receivedDateTime: istDate,
-                                    body: cleanedTextBody,
-                                });
-                                console.log('Email stored:', email.subject);
-                            } catch (err) {
-                                console.error('Error parsing or storing email:', err);
-                            }
-                        });
-                    });
-                });
+    //                             // Store the email in the database
+    //                             const email = await storeEmailModel.create({
+    //                                 subject,
+    //                                 from: from.text,
+    //                                 currentDate: new Date().toJSON().slice(0, 10),
+    //                                 receivedDateTime: istDate,
+    //                                 body: cleanedTextBody,
+    //                             });
+    //                             console.log('Email stored:', email.subject);
+    //                         } catch (err) {
+    //                             console.error('Error parsing or storing email:', err);
+    //                         }
+    //                     });
+    //                 });
+    //             });
 
-                f.once('error', (ex) => {
-                    console.error('Fetch error:', ex);
-                });
+    //             f.once('error', (ex) => {
+    //                 console.error('Fetch error:', ex);
+    //             });
 
-                f.once('end', () => {
-                    console.log('Finished fetching the last email');
-                    imap.end();
-                });
-            });
-        });
-    });
+    //             f.once('end', () => {
+    //                 console.log('Finished fetching the last email');
+    //                 imap.end();
+    //             });
+    //         });
+    //     });
+    // });
 
-    imap.once('error', (err) => {
-        console.error('IMAP connection error:', err);
-    });
+    // imap.once('error', (err) => {
+    //     console.error('IMAP connection error:', err);
+    // });
 
-    imap.once('end', () => {
-        console.log('IMAP connection ended');
-    });
+    // imap.once('end', () => {
+    //     console.log('IMAP connection ended');
+    // });
 
-    imap.connect();
+    // imap.connect();
+    console.log("Hello from the fetchEmails function");
 });

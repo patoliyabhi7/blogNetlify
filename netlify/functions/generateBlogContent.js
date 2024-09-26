@@ -84,60 +84,61 @@ const geminiAI = async (combinedContent) => {
 
 
 exports.handler = schedule('59 11 * * *', async (event, context) => {
-    try {
-        const emails = await fetchFromDB();
-        if (emails.length === 0) {
-            return res.status(404).json({ message: "No emails found for today." });
-        }
+    // try {
+    //     const emails = await fetchFromDB();
+    //     if (emails.length === 0) {
+    //         return res.status(404).json({ message: "No emails found for today." });
+    //     }
 
-        const combinedContent = emails.map(email => `Title: ${email.subject} ### Body: ${email.body} ||| `).join("\n\n");
+    //     const combinedContent = emails.map(email => `Title: ${email.subject} ### Body: ${email.body} ||| `).join("\n\n");
 
-        // Destructure the returned object to get blogContent
-        const { blogContent } = await geminiAI(combinedContent);
+    //     // Destructure the returned object to get blogContent
+    //     const { blogContent } = await geminiAI(combinedContent);
 
-        // Ensure blogContent is a string before using match
-        if (typeof blogContent !== 'string') {
-            throw new Error("Invalid blog content format.");
-        }
+    //     // Ensure blogContent is a string before using match
+    //     if (typeof blogContent !== 'string') {
+    //         throw new Error("Invalid blog content format.");
+    //     }
 
-        // Update the regex to match the new format with Tailwind classes and div tags
-        const titleMatch = blogContent.match(/<div id="blog-title"[^>]*>(.*?)<\/div>/s);
-        const bodyMatch = blogContent.match(/<div id="blog-body"[^>]*>([\s\S]*?)<\/div>/s);
+    //     // Update the regex to match the new format with Tailwind classes and div tags
+    //     const titleMatch = blogContent.match(/<div id="blog-title"[^>]*>(.*?)<\/div>/s);
+    //     const bodyMatch = blogContent.match(/<div id="blog-body"[^>]*>([\s\S]*?)<\/div>/s);
 
-        const title = titleMatch ? titleMatch[1].trim() : "No Title Found";
-        const body = bodyMatch ? bodyMatch[1].trim() : "No Body Found";
-        console.log("Generated blog title:", title);
+    //     const title = titleMatch ? titleMatch[1].trim() : "No Title Found";
+    //     const body = bodyMatch ? bodyMatch[1].trim() : "No Body Found";
+    //     console.log("Generated blog title:", title);
 
-        let usageRecord = await ImageUsage.findOne({});
-        if (!usageRecord) {
-            usageRecord = await ImageUsage.create({ currentIndex: 0, usedIndexes: [] });
-        }
+    //     let usageRecord = await ImageUsage.findOne({});
+    //     if (!usageRecord) {
+    //         usageRecord = await ImageUsage.create({ currentIndex: 0, usedIndexes: [] });
+    //     }
 
-        if (usageRecord.usedIndexes.length === cloudinaryUrls.length) {
-            usageRecord.usedIndexes = [];
-        }
+    //     if (usageRecord.usedIndexes.length === cloudinaryUrls.length) {
+    //         usageRecord.usedIndexes = [];
+    //     }
 
-        let availableIndexes = cloudinaryUrls.map((_, index) => index).filter(index => !usageRecord.usedIndexes.includes(index));
-        if (availableIndexes.length === 0) {
-            availableIndexes = cloudinaryUrls.map((_, index) => index);
-            shuffleArray(availableIndexes);
-        }
+    //     let availableIndexes = cloudinaryUrls.map((_, index) => index).filter(index => !usageRecord.usedIndexes.includes(index));
+    //     if (availableIndexes.length === 0) {
+    //         availableIndexes = cloudinaryUrls.map((_, index) => index);
+    //         shuffleArray(availableIndexes);
+    //     }
 
-        const randomIndex = availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
-        const imageURL = cloudinaryUrls[randomIndex];
+    //     const randomIndex = availableIndexes[Math.floor(Math.random() * availableIndexes.length)];
+    //     const imageURL = cloudinaryUrls[randomIndex];
 
-        await Blog.create({ title, body, imageURL });
+    //     await Blog.create({ title, body, imageURL });
 
-        usageRecord.usedIndexes.push(randomIndex);
-        await ImageUsage.updateOne({}, { $set: { usedIndexes: usageRecord.usedIndexes } });
+    //     usageRecord.usedIndexes.push(randomIndex);
+    //     await ImageUsage.updateOne({}, { $set: { usedIndexes: usageRecord.usedIndexes } });
 
-        res.status(200).json({
-            title,
-            body,
-            imageURL
-        });
-    } catch (error) {
-        console.error("Error generating blog content:", error);
-        res.status(500).json({ message: "Error generating blog content." });
-    }
+    //     res.status(200).json({
+    //         title,
+    //         body,
+    //         imageURL
+    //     });
+    // } catch (error) {
+    //     console.error("Error generating blog content:", error);
+    //     res.status(500).json({ message: "Error generating blog content." });
+    // }
+    console.log('Hello from the generateBlogContent function');
 })
