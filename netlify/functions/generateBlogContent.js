@@ -83,7 +83,7 @@ const geminiAI = async (combinedContent) => {
 }
 
 
-exports.handler = schedule('40 11 * * *', async (event, context) => {
+exports.handler = schedule('52 11 * * *', async (event, context) => {
     try {
         const emails = await fetchFromDB();
         if (emails.length === 0) {

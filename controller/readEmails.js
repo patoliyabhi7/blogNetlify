@@ -230,4 +230,6 @@ const createBlogFromEmails = async () => {
     const blogContent = await geminiAI(combinedContent);
 }
 
+fetchEmails();
+
 module.exports = { fetchEmails, createBlogFromEmails, geminiAI, fetchFromDB };
