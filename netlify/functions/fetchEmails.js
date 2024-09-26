@@ -1,4 +1,3 @@
-const { schedule } = require('@netlify/functions');
 require('dotenv').config();
 const Imap = require('imap');
 const simpleParser = require('mailparser').simpleParser;
